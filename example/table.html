@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Smart table using vanilla js binding</title>
+  <link href="theme.css" rel="stylesheet">
+</head>
+<body>
+<main id="main">
+  <section id="table-container">
+    <div data-st-loading-indicator="">
+      Processing ...
+    </div>
+    <table>
+      <thead>
+      <tr>
+        <th colspan="5">
+          <label for="search">global search</label>
+          <input id="search" data-st-search type="text"/>
+        </th>
+      </tr>
+      <tr>
+        <th data-st-sort="name" data-st-sort-cycle="true">Name</th>
+        <th data-st-sort="firstName">First name</th>
+        <th data-st-sort="gender">Gender</th>
+        <th data-st-sort="birthDate">Birth date</th>
+        <th data-st-sort="size">Size</th>
+      </tr>
+      <tr>
+        <th>
+          <label for="name">Name</label>
+          <input data-st-text-filter="name" id="name" type="text"/>
+        </th>
+        <th>
+          <label for="name">First name</label>
+          <input data-st-text-filter="firstName" id="firstName" type="text"/>
+        </th>
+        <th>
+          <label for="gender">Gender</label>
+          <select name="gender" data-st-text-filter="gender" data-st-filter-operator="equals" id="gender">
+            <option value="">-</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+          </select>
+        </th>
+        <th>
+          <label for="birthDate">Born after:</label>
+          <input data-st-date-filter="birthDate" data-st-filter-operator="gte" id="birthDate" type="date">
+        </th>
+        <th>
+          <label for="min-size">Taller than:</label>
+          <input id="min-size" min="150" max="200" step="1" value="150" type="range">
+          <label for="max-size">Smaller than:</label>
+          <input id="max-size" min="150" max="200" step="1" value="200" type="range">
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td colspan="5">Loading data ...</td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="5" data-st-summary></td>
+      </tr>
+      </tfoot>
+    </table>
+  </section>
+</main>
+
+<script src="bundle.js"></script>
+</body>
+</html>

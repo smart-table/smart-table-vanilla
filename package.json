@@ -1,0 +1,36 @@
+{
+  "name": "smart-table-vanilla",
+  "version": "0.0.0",
+  "description": "smart-table binding for vanilla javascript",
+  "main": "dist/smart-table-vanilla.js",
+  "jsnext:main": "index.js",
+  "scripts": {
+    "build:example": "rollup -c example/rollup.config.js",
+    "build": "rollup -c example/rollup.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smart-table/smart-table-vanilla.git"
+  },
+  "keywords": [
+    "smart-table",
+    "table",
+    "datatable",
+    "list",
+    "lists"
+  ],
+  "author": "Laurent Renard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smart-table/smart-table-vanilla/issues"
+  },
+  "homepage": "https://github.com/smart-table/smart-table-vanilla#readme",
+  "dependencies": {
+    "smart-table-core": "^1.0.0"
+  },
+  "devDependencies": {
+    "rollup": "^0.41.4",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "zora": "^0.3.0"
+  }
+}
