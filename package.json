@@ -26,11 +26,15 @@
   },
   "homepage": "https://github.com/smart-table/smart-table-vanilla#readme",
   "dependencies": {
-    "smart-table-core": "^1.0.0"
+    "smart-table-core": "^1.1.0",
+    "smart-table-crud": "^0.0.2"
   },
   "devDependencies": {
+    "chance": "^1.0.4",
     "rollup": "^0.41.4",
+    "rollup-plugin-commonjs": "^7.0.0",
     "rollup-plugin-node-resolve": "^2.0.0",
+    "uglify-js": "^2.7.5",
     "zora": "^0.3.0"
   }
 }

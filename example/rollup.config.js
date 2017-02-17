@@ -1,9 +1,10 @@
 const node = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 module.exports = {
   entry: 'example/index.js',
   dest: 'example/bundle.js',
   format: 'iife',
-  plugins: [node({jsnext: true})],
+  plugins: [node({jsnext: true}), commonjs()],
   moduleName: 'tableExample',
   sourceMap: true
 };

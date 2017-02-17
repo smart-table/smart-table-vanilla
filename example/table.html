@@ -8,6 +8,7 @@
 </head>
 <body>
 <main id="main">
+  <button>do something</button>
   <section id="table-container">
     <div data-st-loading-indicator="">
       Processing ...
@@ -17,12 +18,13 @@
       <tr>
         <th colspan="5">
           <label for="search">global search</label>
-          <input id="search" data-st-search type="text"/>
+          <input id="search" placeholder="Case sensitive search on firstname, lastname and size"
+                 data-st-search="name.first, name.last, size" type="text"/>
         </th>
       </tr>
       <tr>
-        <th data-st-sort="name" data-st-sort-cycle="true">Name</th>
-        <th data-st-sort="firstName">First name</th>
+        <th data-st-sort="name.last" data-st-sort-cycle="true">Name</th>
+        <th data-st-sort="name.first">First name</th>
         <th data-st-sort="gender">Gender</th>
         <th data-st-sort="birthDate">Birth date</th>
         <th data-st-sort="size">Size</th>
@@ -30,11 +32,11 @@
       <tr>
         <th>
           <label for="name">Name</label>
-          <input data-st-text-filter="name" id="name" type="text"/>
+          <input data-st-text-filter="name.last" id="name" type="text"/>
         </th>
         <th>
           <label for="name">First name</label>
-          <input data-st-text-filter="firstName" id="firstName" type="text"/>
+          <input data-st-text-filter="name.first" id="firstName" type="text"/>
         </th>
         <th>
           <label for="gender">Gender</label>
@@ -63,13 +65,15 @@
       </tbody>
       <tfoot>
       <tr>
-        <td colspan="5" data-st-summary></td>
+        <td colspan="3" data-st-summary></td>
+        <td colspan="2" data-st-pagination></td>
       </tr>
       </tfoot>
     </table>
   </section>
 </main>
 
+<script src="dataBundle.js"></script>
 <script src="bundle.js"></script>
 </body>
 </html>

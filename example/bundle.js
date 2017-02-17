@@ -21,9 +21,7 @@ function curry (fn, arityLeft) {
   };
 }
 
-function apply (fn) {
-  return (...args) => fn(...args);
-}
+
 
 function tap (fn) {
   return arg => {
@@ -175,10 +173,13 @@ function filter$1 (filter) {
 }
 
 var search$1 = function (searchConf = {}) {
-  const {value} = searchConf;
-  return (array) => {
-    return value ? array.filter(item => JSON.stringify(item).toLowerCase().includes(value)) : array
-  };
+  const {value, scope = []} = searchConf;
+  const searchPointers = scope.map(field => pointer(field).get);
+  if (!scope.length || !value) {
+    return array => array;
+  } else {
+    return array => array.filter(item => searchPointers.some(p => String(p(item)).includes(String(value))))
+  }
 };
 
 function sliceFactory ({page = 1, size} = {}) {
@@ -188,15 +189,6 @@ function sliceFactory ({page = 1, size} = {}) {
     return array.slice(offset, offset + actualSize);
   };
 }
-
-const TOGGLE_SORT = 'TOGGLE_SORT';
-const DISPLAY_CHANGED = 'DISPLAY_CHANGED';
-const PAGE_CHANGED = 'CHANGE_PAGE';
-const EXEC_CHANGED = 'EXEC_STARTED';
-const FILTER_CHANGED = 'FILTER_CHANGED';
-const SUMMARY_CHANGED = 'SUMMARY_CHANGED';
-const SEARCH_CHANGED = 'SEARCH_CHANGED';
-const EXEC_ERROR = 'EXEC_ERROR';
 
 function emitter () {
 
@@ -215,8 +207,12 @@ function emitter () {
       return this;
     },
     off(event, ...listeners){
-      const list = listenersLists[event] || [];
-      listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
+      if (!event) {
+        Object.keys(listenersLists).forEach(ev => this.off(ev));
+      } else {
+        const list = listenersLists[event] || [];
+        listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
+      }
       return this;
     }
   }
@@ -253,6 +249,15 @@ function proxyListener (eventMap) {
     });
   }
 }
+
+const TOGGLE_SORT = 'TOGGLE_SORT';
+const DISPLAY_CHANGED = 'DISPLAY_CHANGED';
+const PAGE_CHANGED = 'CHANGE_PAGE';
+const EXEC_CHANGED = 'EXEC_STARTED';
+const FILTER_CHANGED = 'FILTER_CHANGED';
+const SUMMARY_CHANGED = 'SUMMARY_CHANGED';
+const SEARCH_CHANGED = 'SEARCH_CHANGED';
+const EXEC_ERROR = 'EXEC_ERROR';
 
 function curriedPointer (path) {
   const {get, set} = pointer(path);
@@ -304,18 +309,25 @@ var table$3 = function ({
     }, processingDelay);
   };
 
-  const tableOperation = (pter, ev) => apply(compose(
+  const updateTableState = curry((pter, ev, newPartialState) => compose(
     safeAssign(pter.get(tableState)),
     tap(dispatch(ev)),
-    pter.set(tableState),
-    () => table.exec()
-  ));
+    pter.set(tableState)
+  )(newPartialState));
+
+  const resetToFirstPage = () => updateTableState(slicePointer, PAGE_CHANGED, {page: 1});
+
+  const tableOperation = (pter, ev) => compose(
+    updateTableState(pter, ev),
+    resetToFirstPage,
+    () => table.exec() // we wrap within a function so table.exec can be overwritten (when using with a server for example)
+  );
 
   const api = {
     sort: tableOperation(sortPointer, TOGGLE_SORT),
-    slice: tableOperation(slicePointer, PAGE_CHANGED),
     filter: tableOperation(filterPointer, FILTER_CHANGED),
     search: tableOperation(searchPointer, SEARCH_CHANGED),
+    slice: compose(updateTableState(slicePointer, PAGE_CHANGED), () => table.exec()),
     exec,
     eval(state = tableState){
       return Promise.resolve()
@@ -345,15 +357,19 @@ var table$2 = function ({
   tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
   data = []
 }, ...tableDirectives) {
+
+  const coreTable = table$3({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory});
+
   return tableDirectives.reduce((accumulator, newdir) => {
     return Object.assign(accumulator, newdir({
       sortFactory: sortFactory$$1,
       filterFactory,
       searchFactory,
       tableState,
-      data
+      data,
+      table: coreTable
     }));
-  }, table$3({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory}));
+  }, coreTable);
 };
 
 const filterListener = proxyListener({[FILTER_CHANGED]: 'onFilterChange'});
@@ -379,14 +395,43 @@ var filterDirective = function ({table, pointer, operator = 'includes', type = '
 
 const searchListener = proxyListener({[SEARCH_CHANGED]: 'onSearchChange'});
 
-var searchDirective = function ({table}) {
+var searchDirective = function ({table, scope = []}) {
   return Object.assign(
-    searchListener({emitter: table}),
-    {
+    searchListener({emitter: table}), {
       search(input){
-        return table.search({value: input});
+        return table.search({value: input, scope});
       }
     });
+};
+
+const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
+
+var sliceDirective = function ({table, size, page = 1}) {
+
+  let currentPage = page;
+  let currentSize = size;
+
+  const directive = Object.assign({
+    selectPage(p){
+      return table.slice({page: p, size: currentSize});
+    },
+    selectNextPage(){
+      return this.selectPage(currentPage + 1);
+    },
+    selectPreviousPage(){
+      return this.selectPage(currentPage - 1);
+    },
+    changePageSize(size){
+      return table.slice({page: 1, size});
+    }
+  }, sliceListener({emitter: table}));
+
+  directive.onSummaryChange(({page:p, size:s}) => {
+    currentPage = p;
+    currentSize = s;
+  });
+
+  return directive;
 };
 
 const sortListeners = proxyListener({[TOGGLE_SORT]: 'onSortToggle'});
@@ -429,7 +474,7 @@ var workingIndicatorDirective = function ({table}) {
 };
 
 const search = searchDirective;
-
+const slice = sliceDirective;
 const summary = summaryDirective$1;
 const sort = sortDirective;
 const filter = filterDirective;
@@ -505,15 +550,15 @@ const numberInput$1 = input('data-st-number-filter', 'number');
 const dateInput$1 = input('data-st-date-filter', 'date');
 
 var searchInput$1 = function ({el, table, delay = 400}) {
-  const component = search({table});
-
+  const scope = (el.getAttribute('data-st-search') || '').split(',').map(s => s.trim());
+  const component = search({table, scope});
   const eventListener = debounce$1(ev => {
     component.search(el.value);
   }, delay);
   el.addEventListener('input', eventListener);
   return Object.assign(component, {
     clean(){
-      el.removeEventListener('input',eventListener);
+      el.removeEventListener('input', eventListener);
       component.off();
     }
   });
@@ -522,7 +567,7 @@ var searchInput$1 = function ({el, table, delay = 400}) {
 var tableDirective$1 = function ({el, data}, ...tableDirectives) {
   const table = table$2({
     data,
-    tableState: {sort: {}, filter: {}, slice: {page: 1, size: 25}}
+    tableState: {sort: {}, filter: {}, slice: {page: 1, size: 10}}
   }, ...tableDirectives);
 
   const sortableHeader = [...el.querySelectorAll('[data-st-sort]')].map(el => sort$1({el, table}));
@@ -549,9 +594,10 @@ var tableDirective$1 = function ({el, data}, ...tableDirectives) {
 
 const debounce$$1 = debounce$1;
 
-var row = function ({name, firstName, gender, birthDate, size}) {
+var row = function ({name:{first:firstName, last:lastName}, gender, birthDate, size}, index, table) {
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td>${firstName}</td><td>${gender}</td><td>${birthDate.toLocaleDateString()}</td><td>${size}</td>`;
+  tr.innerHTML = `<td>${lastName}</td><td>${firstName}</td><td>${gender}</td><td>${birthDate.toLocaleDateString()}</td><td>${size}</td>`;
+  tr.addEventListener('click', () => table.remove(index));
   return tr;
 };
 
@@ -592,58 +638,99 @@ function rangSizeInput ({minEl, maxEl, table: table$$1}) {
   }, 400));
 }
 
-const data = [{
-  name: 'Renard',
-  firstName: 'Laurent',
-  gender: 'male',
-  birthDate: new Date(1987, 4, 21),
-  size: 176
-}, {
-  name: 'Faivre',
-  firstName: 'Blandine',
-  gender: 'female',
-  birthDate: new Date(1987, 3, 25),
-  size: 158
-}, {
-  name: 'Frere',
-  firstName: 'Francoise',
-  gender: 'Female',
-  birthDate: new Date(1955, 7, 27),
-  size: 165
-}, {
-  name: 'Nicaise',
-  firstName: 'Fernande',
-  gender: 'Female',
-  birthDate: new Date(1930, 7, 29),
-  size: 163
-}];
+const get = curry((array, index) => array[index]);
+const replace = curry((array, newVal, index) => array.map((val, i) => (index === i ) ? newVal : val));
+const patch = curry((array, newVal, index) => replace(array, Object.assign(array[index], newVal), index));
+const remove = curry((array, index) => array.filter((val, i) => index !== i));
+const insert = curry((array, newVal, index) => [...array.slice(0, index), newVal, ...array.slice(index)]);
+
+var crud = function ({data, table}) {
+  const mutateData = (newData) => {
+    data.splice(0, data.length);
+    data.push(...newData);
+  };
+  const refresh = compose(mutateData, table.exec);
+
+  return {
+    update(index, newVal){
+      const exec = compose(
+        replace(data, newVal),
+        refresh
+      );
+      return exec(index);
+    },
+    patch(index, newVal){
+      const exec = compose(
+        patch(data, newVal),
+        refresh);
+      return exec(index);
+    },
+    remove: compose(remove(data), refresh),
+    insert(newVal, index = 0){
+      const exec = compose(insert(data, newVal), refresh);
+      return exec(index);
+    },
+    get: get(data)
+  };
+};
+
+function paginationComponent ({table}) {
+  const element = document.createElement('div');
+  const previousButton = document.createElement('button');
+  previousButton.innerHTML = 'Previous';
+  const nextButton = document.createElement('button');
+  nextButton.innerHTML = 'Next';
+  const comp = Object.assign({}, slice({table}));
+
+  comp.onSummaryChange(({page}) => {
+    previousButton.disabled = page === 1;
+    //todo disabled if in the last page
+  });
+
+  previousButton.addEventListener('click', () => comp.selectPreviousPage());
+  nextButton.addEventListener('click', () => comp.selectNextPage());
+
+  element.appendChild(previousButton);
+  element.appendChild(nextButton);
+
+  return element;
+}
 
 const el = document.getElementById('table-container');
 const tbody = el.querySelector('tbody');
-
 const summaryEl = el.querySelector('[data-st-summary]');
 
-const t = tableDirective$1({el, data});
+const t = tableDirective$1({el, data}, crud);
 
 t.onDisplayChange(displayed => {
   tbody.innerHTML = '';
   for (let r of displayed) {
-    tbody.appendChild(row((r.value)));
+    const newChild = row((r.value), r.index, t);
+    tbody.appendChild(newChild);
   }
 });
 
+document.querySelector('button').addEventListener('click', () => {
+  t.insert({
+    id: 66666,
+    name: {first: 'Laurent', last: 'Renard'},
+    size: 176,
+    birthDate: new Date(1987, 4, 21),
+    gender: 'male'
+  });
+});
 
 summaryComponent({table: t, el: summaryEl});
 rangSizeInput({
-  table:t,
-  minEl:document.getElementById('min-size'),
-  maxEl:document.getElementById('max-size')
+  table: t,
+  minEl: document.getElementById('min-size'),
+  maxEl: document.getElementById('max-size')
 });
 
+const paginationContainer = el.querySelector('[data-st-pagination]');
+paginationContainer.appendChild(paginationComponent({table: t}));
 
 t.exec();
-
-// setTimeout(t.clean,200);
 
 }());
 //# sourceMappingURL=bundle.js.map
