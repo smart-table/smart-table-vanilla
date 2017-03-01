@@ -12,7 +12,8 @@ function compose (first, ...fns) {
 function curry (fn, arityLeft) {
   const arity = arityLeft || fn.length;
   return (...args) => {
-    if (arity === args.length) {
+    const argLength = args.length || 1;
+    if (arity === argLength) {
       return fn(...args);
     } else {
       const func = (...moreArgs) => fn(...args, ...moreArgs);
@@ -344,6 +345,9 @@ var table$3 = function ({
     },
     onDisplayChange(fn){
       table.on(DISPLAY_CHANGED, fn);
+    },
+    getTableState(){
+      return Object.assign({}, tableState)
     }
   };
 
@@ -507,7 +511,7 @@ var sort$1 = function ({el, table}) {
   el.addEventListener('click', eventListener);
   return Object.assign(component, {
     clean(){
-      el.removeEventListener('click',eventListener);
+      el.removeEventListener('click', eventListener);
       component.off();
     }
   });
