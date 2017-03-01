@@ -1,5 +1,8 @@
-(function () {
-'use strict';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global['smart-table-vanilla'] = global['smart-table-vanilla'] || {})));
+}(this, (function (exports) { 'use strict';
 
 function swap (f) {
   return (a, b) => f(b, a);
@@ -264,7 +267,7 @@ function curriedPointer (path) {
   return {get, set: curry(set)};
 }
 
-var table$3 = function ({
+var table$2 = function ({
   sortFactory,
   tableState,
   data,
@@ -350,7 +353,7 @@ var table$3 = function ({
   return Object.assign(table, api);
 };
 
-var table$2 = function ({
+var table$1 = function ({
   sortFactory: sortFactory$$1 = sortFactory,
   filterFactory = filter$1,
   searchFactory = search$1,
@@ -358,7 +361,7 @@ var table$2 = function ({
   data = []
 }, ...tableDirectives) {
 
-  const coreTable = table$3({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory});
+  const coreTable = table$2({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory});
 
   return tableDirectives.reduce((accumulator, newdir) => {
     return Object.assign(accumulator, newdir({
@@ -404,36 +407,6 @@ var searchDirective = function ({table, scope = []}) {
     });
 };
 
-const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
-
-var sliceDirective = function ({table, size, page = 1}) {
-
-  let currentPage = page;
-  let currentSize = size;
-
-  const directive = Object.assign({
-    selectPage(p){
-      return table.slice({page: p, size: currentSize});
-    },
-    selectNextPage(){
-      return this.selectPage(currentPage + 1);
-    },
-    selectPreviousPage(){
-      return this.selectPage(currentPage - 1);
-    },
-    changePageSize(size){
-      return table.slice({page: 1, size});
-    }
-  }, sliceListener({emitter: table}));
-
-  directive.onSummaryChange(({page:p, size:s}) => {
-    currentPage = p;
-    currentSize = s;
-  });
-
-  return directive;
-};
-
 const sortListeners = proxyListener({[TOGGLE_SORT]: 'onSortToggle'});
 const directions = ['asc', 'desc'];
 
@@ -461,12 +434,6 @@ var sortDirective = function ({pointer, table, cycle = false}) {
   return directive;
 };
 
-const executionListener = proxyListener({[SUMMARY_CHANGED]: 'onSummaryChange'});
-
-var summaryDirective$1 = function ({table}) {
-  return executionListener({emitter: table});
-};
-
 const executionListener$1 = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
 
 var workingIndicatorDirective = function ({table}) {
@@ -474,8 +441,8 @@ var workingIndicatorDirective = function ({table}) {
 };
 
 const search = searchDirective;
-const slice = sliceDirective;
-const summary = summaryDirective$1;
+
+
 const sort = sortDirective;
 const filter = filterDirective;
 const workingIndicator = workingIndicatorDirective;
@@ -507,7 +474,7 @@ var sort$1 = function ({el, table}) {
   el.addEventListener('click', eventListener);
   return Object.assign(component, {
     clean(){
-      el.removeEventListener('click',eventListener);
+      el.removeEventListener('click', eventListener);
       component.off();
     }
   });
@@ -565,7 +532,7 @@ var searchInput$1 = function ({el, table, delay = 400}) {
 };
 
 var tableDirective$1 = function ({el, data, tableState}, ...tableDirectives) {
-  const table = table$2({
+  const table = table$1({
     data,
     tableState
   }, ...tableDirectives);
@@ -592,99 +559,26 @@ var tableDirective$1 = function ({el, data, tableState}, ...tableDirectives) {
   });
 };
 
+const textInput$$1 = textInput$1;
+const numberInput$$1 = numberInput$1;
+const dateInput$$1 = dateInput$1;
+const loadingIndicator = loading;
+const table = tableDirective$1;
+const searchInput = searchInput$1;
+const sortToggle = sort$1;
 const debounce$$1 = debounce$1;
 
-var row = function ({name:{first:firstName, last:lastName}, gender, birthDate, size}, index, table) {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${lastName}</td><td>${firstName}</td><td>${gender}</td><td>${birthDate.toLocaleDateString()}</td><td>${size}</td>`;
-  tr.addEventListener('click', () => table.remove(index));
-  return tr;
-};
+exports.textInput = textInput$$1;
+exports.numberInput = numberInput$$1;
+exports.dateInput = dateInput$$1;
+exports.loadingIndicator = loadingIndicator;
+exports.table = table;
+exports.searchInput = searchInput;
+exports.sortToggle = sortToggle;
+exports.debounce = debounce$$1;
+exports['default'] = tableDirective$1;
 
-function summaryComponent ({table, el}) {
-  const dir = summary({table});
-  dir.onSummaryChange(({page, size, filteredCount}) => {
-    el.innerHTML = `showing items <strong>${(page - 1) * size + (filteredCount > 0 ? 1 : 0)}</strong> - <strong>${Math.min(filteredCount, page * size)}</strong> of <strong>${filteredCount}</strong> matching items`;
-  });
-  return dir;
-}
+Object.defineProperty(exports, '__esModule', { value: true });
 
-function rangSizeInput ({minEl, maxEl, table: table$$1}) {
-
-  let ltValue;
-  let gtValue;
-
-  const commit = () => {
-    const clauses = [];
-    if (ltValue) {
-      clauses.push({value: ltValue, operator: 'lte', type: 'number'});
-    }
-    if (gtValue) {
-      clauses.push({value: gtValue, operator: 'gte', type: 'number'});
-    }
-    table$$1.filter({
-      size: clauses
-    });
-  };
-
-  minEl.addEventListener('input', debounce$$1((ev) => {
-    gtValue = minEl.value;
-    commit();
-  }, 400));
-
-  maxEl.addEventListener('input', debounce$$1((ev) => {
-    ltValue = maxEl.value;
-    commit();
-  }, 400));
-}
-
-function paginationComponent ({table}) {
-  const element = document.createElement('div');
-  const previousButton = document.createElement('button');
-  previousButton.innerHTML = 'Previous';
-  const nextButton = document.createElement('button');
-  nextButton.innerHTML = 'Next';
-  const comp = Object.assign({}, slice({table}));
-
-  comp.onSummaryChange(({page}) => {
-    previousButton.disabled = page === 1;
-    //todo disabled if in the last page
-  });
-
-  previousButton.addEventListener('click', () => comp.selectPreviousPage());
-  nextButton.addEventListener('click', () => comp.selectNextPage());
-
-  element.appendChild(previousButton);
-  element.appendChild(nextButton);
-
-  return element;
-}
-
-const el = document.getElementById('table-container');
-const tbody = el.querySelector('tbody');
-const summaryEl = el.querySelector('[data-st-summary]');
-
-const t = tableDirective$1({el, data, tableState: {sort: {}, filter: {}, slice: {page: 1, size: 20}}});
-
-t.onDisplayChange(displayed => {
-  tbody.innerHTML = '';
-  for (let r of displayed) {
-    const newChild = row((r.value), r.index, t);
-    tbody.appendChild(newChild);
-  }
-});
-
-summaryComponent({table: t, el: summaryEl});
-rangSizeInput({
-  table: t,
-  minEl: document.getElementById('min-size'),
-  maxEl: document.getElementById('max-size')
-});
-
-const paginationContainer = el.querySelector('[data-st-pagination]');
-paginationContainer.appendChild(paginationComponent({table: t}));
-
-t.exec();
-
-}());
-//# sourceMappingURL=bundle.js.map
+})));
+//# sourceMappingURL=smart-table-vanilla.js.map

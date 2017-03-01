@@ -4,6 +4,6 @@ module.exports = {
   dest: 'dist/smart-table-vanilla.js',
   format: 'umd',
   plugins: [node({jsnext: true})],
-  moduleName: 'tableExample',
+  moduleName: 'smart-table-vanilla',
   sourceMap: true
 };

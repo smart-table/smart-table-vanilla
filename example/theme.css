@@ -8,7 +8,15 @@ body * {
 }
 
 #table-container {
+    display: inline-block;
     position: relative;
+    padding: 1em;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 th, td {
@@ -29,9 +37,6 @@ th {
     content: '\25bd\0020';
 }
 
-table {
-    table-layout: fixed;
-}
 
 [data-st-loading-indicator] {
     display: none;
@@ -51,21 +56,21 @@ table {
     justify-content: center;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+thead {
+    border-bottom: 2px solid #343434;
 }
 
 tbody > tr:not(:first-child) {
     border-top: 1px solid #4b4b4b;
 }
 
-thead {
-    border-bottom: 2px solid #343434;
-}
 
 tbody > tr:nth-child(2n) {
     background: #e5f2fa;
+}
+
+[data-st-pagination]{
+    text-align: right;
 }
 
 input {
