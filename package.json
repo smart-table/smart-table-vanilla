@@ -4,6 +4,7 @@
   "description": "smart-table binding for vanilla javascript",
   "main": "dist/smart-table-vanilla.js",
   "jsnext:main": "index.js",
+  "module": "index.js",
   "scripts": {
     "build:example": "rollup -c example/rollup.config.js",
     "build": "rollup -c ./rollup.config.js"
@@ -31,7 +32,6 @@
   "devDependencies": {
     "chance": "^1.0.4",
     "rollup": "^0.41.4",
-    "rollup-plugin-node-resolve": "^2.0.0",
-    "zora": "^0.3.0"
+    "rollup-plugin-node-resolve": "^3.0.0"
   }
 }

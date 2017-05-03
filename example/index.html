@@ -22,7 +22,7 @@
         </th>
       </tr>
       <tr>
-        <th data-st-sort="name.last" data-st-sort-cycle="true">Name</th>
+        <th data-st-sort="name.last" data-st-sort-cycle>Name</th>
         <th data-st-sort="name.first">First name</th>
         <th data-st-sort="gender">Gender</th>
         <th data-st-sort="birthDate">Birth date</th>
@@ -31,15 +31,15 @@
       <tr>
         <th>
           <label for="name">Name</label>
-          <input data-st-text-filter="name.last" id="name" type="text"/>
+          <input data-st-filter="name.last" id="name" type="text"/>
         </th>
         <th>
           <label for="name">First name</label>
-          <input data-st-text-filter="name.first" id="firstName" type="text"/>
+          <input data-st-filter="name.first" id="firstName" type="text"/>
         </th>
         <th>
           <label for="gender">Gender</label>
-          <select name="gender" data-st-text-filter="gender" data-st-filter-operator="equals" id="gender">
+          <select name="gender" data-st-filter="gender" data-st-filter-operator="is" id="gender">
             <option value="">-</option>
             <option value="female">Female</option>
             <option value="male">Male</option>
@@ -47,7 +47,7 @@
         </th>
         <th>
           <label for="birthDate">Born after:</label>
-          <input data-st-date-filter="birthDate" data-st-filter-operator="gte" id="birthDate" type="date">
+          <input data-st-filter="birthDate" data-st-filter-operator="gte" id="birthDate" type="date">
         </th>
         <th>
           <label for="min-size">Taller than:</label>
@@ -65,7 +65,9 @@
       <tfoot>
       <tr>
         <td colspan="3" data-st-summary></td>
-        <td colspan="2" data-st-pagination></td>
+        <td colspan="2">
+          <div  data-st-pagination></div>
+        </td>
       </tr>
       </tfoot>
     </table>

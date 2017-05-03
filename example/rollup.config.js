@@ -5,5 +5,5 @@ module.exports = {
   format: 'iife',
   plugins: [node({jsnext: true})],
   moduleName: 'tableExample',
-  sourceMap: true
+  sourceMap: 'inline'
 };

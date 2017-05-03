@@ -1,23 +1,17 @@
-import table from '../index';
+import {table as tableComponentFactory} from '../index';
+import {table} from 'smart-table-core';
 import row from './components/row';
 import summary from './components/summary';
-import rangeSizeInput from './components/rangeSizeInput';
 import pagination from './components/pagination';
+import rangeSizeInput from './components/rangeSizeInput';
 
 
 const el = document.getElementById('table-container');
 const tbody = el.querySelector('tbody');
 const summaryEl = el.querySelector('[data-st-summary]');
 
-const t = table({el, data, tableState: {sort: {}, filter: {}, slice: {page: 1, size: 20}}});
-
-t.onDisplayChange(displayed => {
-  tbody.innerHTML = '';
-  for (let r of displayed) {
-    const newChild = row((r.value), r.index, t);
-    tbody.appendChild(newChild);
-  }
-});
+const t = table({data, tableState: {sort: {}, filter: {}, slice: {page: 1, size: 20}}});
+const tableComponent = tableComponentFactory({el, table: t});
 
 summary({table: t, el: summaryEl});
 rangeSizeInput({
@@ -27,6 +21,12 @@ rangeSizeInput({
 });
 
 const paginationContainer = el.querySelector('[data-st-pagination]');
-paginationContainer.appendChild(pagination({table: t}));
+pagination({table: t, el: paginationContainer});
 
-t.exec();
+tableComponent.onDisplayChange(displayed => {
+  tbody.innerHTML = '';
+  for (let r of displayed) {
+    const newChild = row((r.value), r.index, t);
+    tbody.appendChild(newChild);
+  }
+});
