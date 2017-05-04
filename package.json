@@ -1,6 +1,6 @@
 {
   "name": "smart-table-vanilla",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "smart-table binding for vanilla javascript",
   "main": "dist/smart-table-vanilla.js",
   "jsnext:main": "index.js",
