@@ -30,7 +30,6 @@
     "smart-table-core": "^1.1.0"
   },
   "devDependencies": {
-    "chance": "^1.0.4",
     "rollup": "^0.41.4",
     "rollup-plugin-node-resolve": "^3.0.0"
   }
