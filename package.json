@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/smart-table/smart-table-vanilla#readme",
   "dependencies": {
-    "smart-table-core": "^1.1.0"
+    "smart-table-core": "^3.0.3"
   },
   "devDependencies": {
     "rollup": "^0.41.4",

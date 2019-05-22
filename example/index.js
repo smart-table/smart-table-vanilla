@@ -1,5 +1,5 @@
 import {table as tableComponentFactory} from '../index';
-import {table} from 'smart-table-core';
+import {smartTable as table} from 'smart-table-core';
 import row from './components/row';
 import summary from './components/summary';
 import pagination from './components/pagination';
