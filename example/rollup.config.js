@@ -1,9 +1,13 @@
 const node = require('rollup-plugin-node-resolve');
 module.exports = {
-  entry: 'example/index.js',
-  dest: 'example/bundle.js',
-  format: 'iife',
-  plugins: [node({jsnext: true})],
-  moduleName: 'tableExample',
-  sourceMap: 'inline'
+  input: 'example/index.js',
+  output: {
+    file: 'example/bundle.js',
+    format: 'iife',
+    name: 'tableExample',
+    sourcemap: 'inline',
+  },
+  plugins: [
+    node({mainFields: ['browser', 'main']}),
+  ],
 };

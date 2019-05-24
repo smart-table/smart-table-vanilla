@@ -30,7 +30,7 @@
     "smart-table-core": "^3.0.3"
   },
   "devDependencies": {
-    "rollup": "^0.41.4",
-    "rollup-plugin-node-resolve": "^3.0.0"
+    "rollup": "^1.12.3",
+    "rollup-plugin-node-resolve": "^5.0.0"
   }
 }
