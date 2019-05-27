@@ -1,4 +1,4 @@
-import {slice} from 'smart-table-core';
+import {paginationDirective} from 'smart-table-core';
 
 export default function paginationComponent ({table, el}) {
   const previousButton = document.createElement('button');
@@ -7,7 +7,7 @@ export default function paginationComponent ({table, el}) {
   nextButton.innerHTML = 'Next';
   const pageSpan = document.createElement('span');
   pageSpan.innerHTML = '- page 1 -';
-  const comp = slice({table});
+  const comp = paginationDirective({table});
 
   comp.onSummaryChange(({page}) => {
     previousButton.disabled = !comp.isPreviousPageEnabled();

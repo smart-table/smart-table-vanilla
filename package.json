@@ -26,11 +26,9 @@
     "url": "https://github.com/smart-table/smart-table-vanilla/issues"
   },
   "homepage": "https://github.com/smart-table/smart-table-vanilla#readme",
-  "dependencies": {
-    "smart-table-core": "^1.1.0"
-  },
   "devDependencies": {
-    "rollup": "^0.41.4",
-    "rollup-plugin-node-resolve": "^3.0.0"
+    "rollup": "^1.12.3",
+    "rollup-plugin-node-resolve": "^5.0.0",
+    "smart-table-core": "^3.0.3"
   }
 }

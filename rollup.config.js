@@ -1,9 +1,14 @@
 const node = require('rollup-plugin-node-resolve');
 module.exports = {
-  entry: 'index.js',
-  dest: 'dist/smart-table-vanilla.js',
-  format: 'umd',
-  plugins: [node({jsnext: true})],
-  moduleName: 'smart-table-vanilla',
-  sourceMap: true
+  external: [
+    'smart-table-core',
+  ],
+  input: 'index.js',
+  output: {
+    file: 'dist/smart-table-vanilla.js',
+    format: 'umd',
+    name: 'smart-table-vanilla',
+    sourcemap: true,
+  },
+  plugins: [node()],
 };
