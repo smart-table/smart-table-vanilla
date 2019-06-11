@@ -2,12 +2,11 @@
   "name": "smart-table-vanilla",
   "version": "0.1.0",
   "description": "smart-table binding for vanilla javascript",
-  "main": "dist/smart-table-vanilla.js",
-  "jsnext:main": "index.js",
+  "main": "dist/index.js",
   "module": "index.js",
   "scripts": {
-    "build:example": "rollup -c example/rollup.config.js",
-    "build": "rollup -c ./rollup.config.js"
+    "build:example": "rollup -c rollup/example.js",
+    "build": "rollup -c ./rollup/build.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +28,10 @@
   "devDependencies": {
     "rollup": "^1.12.3",
     "rollup-plugin-node-resolve": "^5.0.0",
-    "smart-table-core": "^3.0.3"
+    "rollup-plugin-terser": "^5.0.0",
+    "smart-table-core": "^3.0.0"
+  },
+  "dependencies": {
+    "smart-table-core": "^3.0.0"
   }
 }

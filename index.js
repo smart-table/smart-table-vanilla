@@ -1,15 +1,6 @@
-import table from './lib/table';
-import filter from './lib/filters';
-import loadindIndicator from './lib/loadingIndicator';
-import search from './lib/search';
-import sort from './lib/sort';
-import {debounce} from './lib/helpers';
-
-export {
-  table,
-  filter,
-  loadindIndicator,
-  search,
-  sort,
-  debounce
-};
+export * from './lib/table';
+export * from './lib/filters';
+export * from './lib/loadingIndicator';
+export * from './lib/search';
+export * from './lib/sort';
+export * from './lib/helpers';

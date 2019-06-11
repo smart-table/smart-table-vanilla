@@ -10,23 +10,26 @@ const el = document.getElementById('table-container');
 const tbody = el.querySelector('tbody');
 const summaryEl = el.querySelector('[data-st-summary]');
 
-const t = table({data, tableState: {sort: {}, filter: {}, slice: {page: 1, size: 20}}});
+const initialState = {sort: {}, filter: {}, slice: {page: 1, size: 20}, search: {}};
+const t = table({data, tableState: initialState});
 const tableComponent = tableComponentFactory({el, table: t});
 
 summary({table: t, el: summaryEl});
 rangeSizeInput({
-  table: t,
-  minEl: document.getElementById('min-size'),
-  maxEl: document.getElementById('max-size')
+    table: t,
+    minEl: document.getElementById('min-size'),
+    maxEl: document.getElementById('max-size')
 });
 
 const paginationContainer = el.querySelector('[data-st-pagination]');
 pagination({table: t, el: paginationContainer});
 
 tableComponent.onDisplayChange(displayed => {
-  tbody.innerHTML = '';
-  for (let r of displayed) {
-    const newChild = row((r.value), r.index, t);
-    tbody.appendChild(newChild);
-  }
+    tbody.innerHTML = '';
+    for (let r of displayed) {
+        const newChild = row((r.value), r.index, t);
+        tbody.appendChild(newChild);
+    }
 });
+
+tableComponent.exec();
